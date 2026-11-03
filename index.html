@@ -4,7 +4,7 @@
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>NayChi · Habit Tracker</title>
 <style>
-:root{color-scheme:dark;--bg:#160d12;--gold:#dfbc79;--red:#b52d47;--line:#65414a}
+:root{color-scheme:dark;--bg:#160d12;--gold:#dfbc79;--red:#d44f4b;--line:#65414a}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:#ead6b5;font-family:Georgia,serif}
 main{max-width:1280px;margin:auto;padding:24px 16px}h1{text-align:center;color:var(--red);letter-spacing:2px;margin:0}
 .sparkle{color:var(--gold);font-size:.85em;margin-right:8px;text-shadow:0 0 12px #cda66e66}.sub{text-align:center;color:var(--gold);letter-spacing:2px;font-size:13px}
@@ -21,7 +21,7 @@ th:first-child,td:first-child{position:sticky;left:0;z-index:1;background:var(--
 </style>
 </head>
 <body><main>
-<h1><span aria-hidden="true" class="sparkle">✦</span> HABIT TRACKER ✦</h1><p class="sub" id="subtitle"></p>
+<h1>HABIT TRACKER ✦</h1><p class="sub" id="subtitle"></p>
 <div class="controls"><select id="month" aria-label="Mes"></select><select id="year" aria-label="Año"></select></div>
 <div class="wrap"><table><thead id="head"></thead><tbody id="body"></tbody></table></div>
 <div class="footer"><span id="progress"></span><div><button class="action" id="export">Guardar respaldo</button> <button class="action" id="import">Restaurar respaldo</button><input id="file" type="file" accept=".json"></div></div>
