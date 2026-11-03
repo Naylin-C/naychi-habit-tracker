@@ -100,8 +100,6 @@ function render(){
  const total=habits.length*days;document.getElementById("progress").textContent=completed+" de "+total+" hábitos completados · "+Math.round(100*completed/total)+"%";
 }
 m.onchange=render;y.onchange=render;
-document.getElementById("export").onclick=()=>{const blob=new Blob([JSON.stringify(records,null,2)],{type:"application/json"}),url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download="naychi-habits-backup.json";a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)};
-document.getElementById("import").onclick=()=>document.getElementById("file").click();
-document.getElementById("file").onchange=async e=>{const file=e.target.files[0];if(!file)return;try{const data=JSON.parse(await file.text());if(!data||typeof data!=="object"||Array.isArray(data))throw Error();if(confirm("¿Restaurar respaldo? Reemplazará tus registros actuales.")){records=data;save();render()}}catch{alert("El archivo no es válido.")}e.target.value=""};
+
 render();
 </script></body></html>
