@@ -4,27 +4,27 @@
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>NayChi · Habit Tracker</title>
 <style>
-:root{color-scheme:dark;--bg:#200d17;--gold:#dfbc79;--red:#d44d4d;--line:#68404b}
+:root{color-scheme:dark;--bg:#160d12;--gold:#dfbc79;--red:#b52d47;--line:#65414a}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:#ead6b5;font-family:Georgia,serif}
 main{max-width:1280px;margin:auto;padding:24px 16px}h1{text-align:center;color:var(--red);letter-spacing:2px;margin:0}
-.sub{text-align:center;color:var(--gold);letter-spacing:2px;font-size:13px}
+.sparkle{color:var(--gold);font-size:.85em;margin-right:8px;text-shadow:0 0 12px #cda66e66}.sub{text-align:center;color:var(--gold);letter-spacing:2px;font-size:13px}
 .controls{display:flex;justify-content:center;gap:12px;margin:22px 0}
-select,button.action{background:#2c1420;color:#ead6b5;border:1px solid #67513b;border-radius:9px;padding:9px;cursor:pointer}
+select,button.action{background:#211319;color:#ead6b5;border:1px solid #67513b;border-radius:9px;padding:9px;cursor:pointer}
 .wrap{overflow-x:auto;border:1px solid var(--line);border-radius:13px}
 table{border-collapse:separate;border-spacing:4px;min-width:1100px;width:100%}
 th,td{text-align:center;font-weight:normal}th{font-size:12px;color:var(--gold)}
 th:first-child,td:first-child{position:sticky;left:0;z-index:1;background:var(--bg);min-width:135px;text-align:left;color:var(--gold)}
-.day{width:27px;height:27px;border-radius:50%;border:1px solid #755345;background:#2a1520;color:#a38c70;cursor:pointer}
+.day{width:27px;height:27px;border-radius:50%;border:1px solid #755345;background:#21131a;color:#a38c70;cursor:pointer}
 .day.done{background:var(--gold);color:#21170e;font-weight:bold}
 .footer{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-top:18px;font:12px Arial,sans-serif}
 .note{font:12px/1.6 Arial,sans-serif;color:#bda98e}#file{display:none}
 </style>
 </head>
 <body><main>
-<h1>HABIT TRACKER ✦</h1><p class="sub" id="subtitle"></p>
+<h1><span aria-hidden="true" class="sparkle">✦</span> HABIT TRACKER ✦</h1><p class="sub" id="subtitle"></p>
 <div class="controls"><select id="month" aria-label="Mes"></select><select id="year" aria-label="Año"></select></div>
 <div class="wrap"><table><thead id="head"></thead><tbody id="body"></tbody></table></div>
-<div class="footer"><span id="progress"></span></div>
+<div class="footer"><span id="progress"></span><div><button class="action" id="export">Guardar respaldo</button> <button class="action" id="import">Restaurar respaldo</button><input id="file" type="file" accept=".json"></div></div>
 </main>
 <script>
 const habits=["Ejercicio","Idiomas","Journal","Conocimiento","Redes","Formación"];
@@ -48,5 +48,8 @@ function render(){
 }
 m.onchange=render;y.onchange=render;
 
+document.getElementById("export").onclick=()=>{const blob=new Blob([JSON.stringify(records,null,2)],{type:"application/json"}),url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download="naychi-habits-backup.json";a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)};
+document.getElementById("import").onclick=()=>document.getElementById("file").click();
+document.getElementById("file").onchange=async e=>{const file=e.target.files[0];if(!file)return;try{const data=JSON.parse(await file.text());if(!data||typeof data!=="object"||Array.isArray(data))throw Error();if(confirm("¿Restaurar respaldo? Reemplazará tus registros actuales.")){records=data;save();render()}}catch{alert("El archivo no es válido.")}e.target.value=""};
 render();
 </script></body></html>
