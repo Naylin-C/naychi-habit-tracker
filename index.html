@@ -4,28 +4,80 @@
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>NayChi · Habit Tracker</title>
 <style>
-:root{color-scheme:dark;--bg:#17120f;--gold:#dfbc79;--red:#df6969;--line:#554231}
-*{box-sizing:border-box}body{margin:0;background:var(--bg);color:#ead6b5;font-family:Georgia,serif}
-main{max-width:1280px;margin:auto;padding:24px 16px}h1{text-align:center;color:var(--red);letter-spacing:2px;margin:0}
-.sub{text-align:center;color:var(--gold);letter-spacing:2px;font-size:13px}
-.controls{display:flex;justify-content:center;gap:12px;margin:22px 0}
-select,button.action{background:#261e18;color:#ead6b5;border:1px solid #67513b;border-radius:9px;padding:9px;cursor:pointer}
-.wrap{overflow-x:auto;border:1px solid var(--line);border-radius:13px}
-table{border-collapse:separate;border-spacing:4px;min-width:1100px;width:100%}
-th,td{text-align:center;font-weight:normal}th{font-size:12px;color:var(--gold)}
-th:first-child,td:first-child{position:sticky;left:0;z-index:1;background:var(--bg);min-width:135px;text-align:left;color:var(--gold)}
-.day{width:27px;height:27px;border-radius:50%;border:1px solid #584535;background:#211a15;color:#a38c70;cursor:pointer}
-.day.done{background:var(--gold);color:#21170e;font-weight:bold}
-.footer{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-top:18px;font:12px Arial,sans-serif}
-.note{font:12px/1.6 Arial,sans-serif;color:#bda98e}#file{display:none}
+:root{color-scheme:dark;--bg:#100b0e;--panel:#1c0b12;--gold:#e2bc78;--red:#a92743;--line:#704451}
+*{box-sizing:border-box}body{margin:0;background:linear-gradient(145deg,#120b10,#210d16 58%,#100b0e);color:#f0dfc3;font-family:Georgia,'Times New Roman',serif}
+main{max-width:1280px;margin:auto;padding:18px 16px 22px}
+h1{text-align:center;color:var(--red);font-size:clamp(22px,3.5vw,34px);letter-spacing:2px;margin:4px 0 6px}
+.sub{text-align:center;color:var(--gold);letter-spacing:2px;font-size:13px;margin:0 0 14px}
+.controls{display:flex;justify-content:center;gap:12px;margin:12px 0 18px}
+select,button.action{background:#300e1b;color:var(--gold);border:1px solid #865b57;border-radius:10px;padding:9px 12px;cursor:pointer;font-family:inherit}
+.wrap{overflow-x:auto;border:1px solid var(--line);border-radius:15px;background:linear-gradient(135deg,#190c12,#250d18);box-shadow:0 8px 28px #0003}
+table{border-collapse:separate;border-spacing:5px;min-width:1100px;width:100%;padding:10px}
+th,td{text-align:center;font-weight:normal}th{font-size:13px;color:var(--gold);padding-bottom:7px}
+th:first-child,td:first-child{position:sticky;left:0;z-index:1;background:#1b0c13;min-width:145px;text-align:left;color:var(--gold);font-size:15px;padding-left:8px}
+.day{width:29px;height:29px;border-radius:50%;border:1px solid #94704d;background:#210f18;color:#d1b68d;cursor:pointer;font-family:inherit;transition:background .15s,transform .15s}
+.day:hover{border-color:var(--gold);transform:scale(1.08)}
+.day.done{background:var(--gold);color:#28131a;font-weight:bold}
+.footer{display:flex;justify-content:center;align-items:center;margin-top:16px;color:var(--gold);font:14px Georgia,serif;text-align:center}
+#file{display:none}
 </style>
 </head>
 <body><main>
 <h1>HABIT TRACKER ✦</h1><p class="sub" id="subtitle"></p>
 <div class="controls"><select id="month" aria-label="Mes"></select><select id="year" aria-label="Año"></select></div>
 <div class="wrap"><table><thead id="head"></thead><tbody id="body"></tbody></table></div>
-<div class="footer"><span id="progress"></span><div><button class="action" id="export">Guardar respaldo</button> <button class="action" id="import">Restaurar respaldo</button><input id="file" type="file" accept=".json"></div></div>
-<p class="note">✦ Becoming her, one day at a time. Los registros se guardan en este navegador. Para transferirlos a otro dispositivo, utiliza el respaldo.</p>
+<div class="footer"><span id="progress"></span></div>
+</main>
+<script>
+const habits=["Ejercicio","Idiomas","Journal","Conocimiento","Redes","Formación"];
+const months=["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
+const m=document.getElementById("month"),y=document.getElementById("year"),head=document.getElementById("head"),body=document.getElementById("body");
+const key="naychi-habits-v1";let records={};try{records=JSON.parse(localStorage.getItem(key)||"{}")}catch{}
+const now=new Date();months.forEach((name,i)=>m.add(new Option(name,i)));for(let yr=2026;yr<=2035;yr++)y.add(new Option(yr,yr));
+m.value=now.getMonth();y.value=Math.max(2026,now.getFullYear());
+function save(){try{localStorage.setItem(key,JSON.stringify(records))}catch{alert("No se pudieron guardar los registros.")}}
+function render(){
+ const month=+m.value,year=+y.value,days=new Date(year,month+1,0).getDate(),prefix=year+"-"+String(month+1).padStart(2,"0");
+ document.getElementById("subtitle").textContent=months[month].toUpperCase()+" "+year+" ✦";
+ head.replaceChildren();body.replaceChildren();const tr=document.createElement("tr"),first=document.createElement("th");first.textContent="HÁBITO";tr.append(first);
+ for(let d=1;d<=days;d++){const th=document.createElement("th");th.textContent=d;tr.append(th)}head.append(tr);
+ let completed=0;
+ habits.forEach((habit,i)=>{const row=document.createElement("tr"),label=document.createElement("td");label.textContent=habit;row.append(label);
+ for(let d=1;d<=days;d++){const td=document.createElement("td"),btn=document.createElement("button"),id=prefix+"|"+i+"|"+d,done=!!records[id];if(done)completed++;
+ btn.className=done?"day done":"day";btn.textContent=done?"✓":d;btn.setAttribute("aria-pressed",String(done));btn.setAttribute("aria-label",habit+" día "+d+(done?" completado":" pendiente"));
+ btn.onclick=()=>{records[id]=!records[id];save();render()};td.append(btn);row.append(td)}body.append(row)});
+ const total=habits.length*days;document.getElementById("progress").textContent=completed+" de "+total+" hábitos completados · "+Math.round(100*completed/total)+"%";
+}
+m.onchange=render;y.onchange=render;
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>NayChi · Habit Tracker</title>
+<style>
+:root{color-scheme:dark;--bg:#100b0e;--panel:#1c0b12;--gold:#e2bc78;--red:#a92743;--line:#704451}
+*{box-sizing:border-box}body{margin:0;background:linear-gradient(145deg,#120b10,#210d16 58%,#100b0e);color:#f0dfc3;font-family:Georgia,'Times New Roman',serif}
+main{max-width:1280px;margin:auto;padding:18px 16px 22px}
+h1{text-align:center;color:var(--red);font-size:clamp(22px,3.5vw,34px);letter-spacing:2px;margin:4px 0 6px}
+.sub{text-align:center;color:var(--gold);letter-spacing:2px;font-size:13px;margin:0 0 14px}
+.controls{display:flex;justify-content:center;gap:12px;margin:12px 0 18px}
+select,button.action{background:#300e1b;color:var(--gold);border:1px solid #865b57;border-radius:10px;padding:9px 12px;cursor:pointer;font-family:inherit}
+.wrap{overflow-x:auto;border:1px solid var(--line);border-radius:15px;background:linear-gradient(135deg,#190c12,#250d18);box-shadow:0 8px 28px #0003}
+table{border-collapse:separate;border-spacing:5px;min-width:1100px;width:100%;padding:10px}
+th,td{text-align:center;font-weight:normal}th{font-size:13px;color:var(--gold);padding-bottom:7px}
+th:first-child,td:first-child{position:sticky;left:0;z-index:1;background:#1b0c13;min-width:145px;text-align:left;color:var(--gold);font-size:15px;padding-left:8px}
+.day{width:29px;height:29px;border-radius:50%;border:1px solid #94704d;background:#210f18;color:#d1b68d;cursor:pointer;font-family:inherit;transition:background .15s,transform .15s}
+.day:hover{border-color:var(--gold);transform:scale(1.08)}
+.day.done{background:var(--gold);color:#28131a;font-weight:bold}
+.footer{display:flex;justify-content:center;align-items:center;margin-top:16px;color:var(--gold);font:14px Georgia,serif;text-align:center}
+#file{display:none}
+</style>
+</head>
+<body><main>
+<h1>HABIT TRACKER ✦</h1><p class="sub" id="subtitle"></p>
+<div class="controls"><select id="month" aria-label="Mes"></select><select id="year" aria-label="Año"></select></div>
+<div class="wrap"><table><thead id="head"></thead><tbody id="body"></tbody></table></div>
+<div class="footer"><span id="progress"></span></div>
 </main>
 <script>
 const habits=["Ejercicio","Idiomas","Journal","Conocimiento","Redes","Formación"];
